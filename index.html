@@ -3,191 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bat-Hunt: Precision Control</title>
+    <title>Bat-Hunt: Final Polish</title>
     <style>
+        /* CONFIGURAÇÃO VISUAL (CSS) */
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            overflow: hidden;
+            margin: 0; padding: 0; background-color: #000; overflow: hidden;
             font-family: 'Courier New', Courier, monospace;
-            touch-action: none;
-            user-select: none;
-            -webkit-user-select: none;
+            touch-action: none; user-select: none; -webkit-user-select: none;
         }
-
-        canvas {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-            image-rendering: pixelated;
-        }
-
+        canvas { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; }
         #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
         }
-
         .hud-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            color: #FFD700;
-            font-weight: bold;
-            font-size: 18px;
-            text-shadow: 2px 2px 0px #000;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            display: flex; justify-content: space-between; align-items: center; padding: 15px;
+            color: #FFD700; font-weight: bold; font-size: 16px; text-shadow: 2px 2px 0px #000;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
         }
-
+        .hud-info { display: flex; flex-direction: column; align-items: flex-end; }
         #timer-display {
-            font-size: 24px;
-            color: #fff;
-            border: 2px solid #fff;
-            padding: 5px 10px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 5px;
+            font-size: 24px; color: #fff; border: 2px solid #fff; padding: 5px 10px;
+            background: rgba(0,0,0,0.5); border-radius: 5px; margin-top: 5px;
         }
-
         .crosshair {
-            position: absolute;
-            top: 60%; 
-            left: 50%;
-            width: 4px;
-            height: 4px;
-            background-color: #FF0000;
-            border: 1px solid #FFD700;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            box-shadow: 0 0 4px #FFD700;
+            position: absolute; top: 60%; left: 50%; width: 2px; height: 2px;
+            background-color: #FF0000; border: 1px solid #FFD700;
+            transform: translate(-50%, -50%); border-radius: 50%; box-shadow: 0 0 4px #FFD700;
         }
-
-        /* --- CONTROLES --- */
         .controls-area {
-            position: absolute;
-            bottom: 30px;
-            width: 100%;
-            height: 180px; 
-            display: flex;
-            justify-content: space-between;
-            padding: 0 40px;
-            box-sizing: border-box;
-            pointer-events: none;
+            position: absolute; bottom: 30px; width: 100%; height: 180px;
+            display: flex; justify-content: space-between; padding: 0 40px;
+            box-sizing: border-box; pointer-events: none;
         }
-
         .joystick-base {
-            width: 140px;
-            height: 140px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 215, 0, 0.5);
-            border-radius: 50%;
-            position: relative;
-            pointer-events: auto;
-            align-self: flex-end;
+            width: 140px; height: 140px; background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.5); border-radius: 50%;
+            position: relative; pointer-events: auto; align-self: flex-end;
         }
-
         .joystick-stick {
-            width: 60px;
-            height: 60px;
-            background: rgba(80, 80, 80, 0.8);
-            border: 2px solid #FFD700;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            box-shadow: 0 0 10px #000;
+            width: 60px; height: 60px; background: rgba(80, 80, 80, 0.8);
+            border: 2px solid #FFD700; border-radius: 50%; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            pointer-events: none; box-shadow: 0 0 10px #000;
         }
-
         #fire-btn {
-            width: 100px;
-            height: 100px;
-            background: rgba(200, 0, 0, 0.6);
-            border: 4px solid #ff5555;
-            border-radius: 50%;
-            pointer-events: auto;
-            align-self: flex-end;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
-            text-shadow: 1px 1px 2px black;
-            font-weight: bold;
+            width: 100px; height: 100px; background: rgba(200, 0, 0, 0.6);
+            border: 4px solid #ff5555; border-radius: 50%; pointer-events: auto;
+            align-self: flex-end; margin-bottom: 20px; display: flex;
+            align-items: center; justify-content: center; font-size: 20px;
+            color: white; text-shadow: 1px 1px 2px black; font-weight: bold;
             box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
         }
-        #fire-btn:active {
-            background: rgba(255, 0, 0, 0.8);
-            transform: scale(0.95);
+        #fire-btn:active { background: rgba(255, 0, 0, 0.8); transform: scale(0.95); }
+        #overlay-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.95); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100; pointer-events: auto;
         }
-
-        #start-screen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            pointer-events: auto;
-        }
-        #start-btn {
-            padding: 20px 40px;
-            font-size: 24px;
-            background-color: #FFD700;
-            color: #000;
-            border: 4px solid #fff;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 0 20px #FFD700;
-            animation: pulse 1.5s infinite;
+        #action-btn {
+            padding: 20px 40px; font-size: 24px; background-color: #FFD700; color: #000;
+            border: 4px solid #fff; font-family: 'Courier New', Courier, monospace;
+            font-weight: bold; cursor: pointer; box-shadow: 0 0 20px #FFD700;
+            animation: pulse 1.5s infinite; margin-top: 20px;
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-        #message {
-            position: absolute;
-            top: 30%;
-            width: 100%;
-            text-align: center;
-            color: #eee;
-            font-size: 20px;
-            text-shadow: 2px 2px 4px black;
-            background-color: rgba(0,0,0,0.95); 
-            padding: 30px; 
-            display: none; 
-            border-top: 4px solid #FFD700; 
-            border-bottom: 4px solid #FFD700; 
-            z-index: 90;
+        #alert-msg {
+            position: absolute; top: 40%; width: 100%; text-align: center;
+            color: #FF0000; font-size: 24px; font-weight: bold;
+            text-shadow: 2px 2px 0px #fff; display: none; z-index: 95;
         }
     </style>
 </head>
 <body>
 
-    <div id="start-screen">
-        <h1 style="color:#FFD700; margin-bottom:10px; text-shadow: 2px 2px #000; font-size: 40px; text-align: center;">BAT-HUNT<br><span style="color:#fff; font-size: 20px;">DOOM EDITION</span></h1>
-        <div id="start-btn">JOGAR</div>
-        <p style="color:#aaa; margin-top:20px;">Use Fones de Ouvido 🎧</p>
+    <div id="overlay-screen">
+        <h1 id="title-text" style="color:#FFD700; margin-bottom:10px; text-shadow: 2px 2px #000; font-size: 40px; text-align: center;">BAT-HUNT<br><span style="color:#fff; font-size: 20px;">ARCADE MODE</span></h1>
+        <div id="level-info" style="color:#aaa; text-align:center;">Toque para começar<br>Ative o som 🔊</div>
+        <div id="action-btn">INICIAR</div>
     </div>
+
+    <div id="alert-msg">PRECISA DE 80% DOS ALVOS!</div>
 
     <div id="ui-layer">
         <div class="hud-top">
-            <span id="score-display">ALVOS: 0/25</span>
-            <span id="timer-display">03:00</span>
+            <div>
+                <span id="level-display" style="display:block; color:#fff; font-size:14px;">NÍVEL 1</span>
+                <span id="score-display">ALVOS: 0/15</span>
+            </div>
+            <div class="hud-info">
+                <span style="font-size:12px; color:#aaa;">TEMPO</span>
+                <span id="timer-display">00:00</span>
+            </div>
         </div>
         
         <div id="crosshair" class="crosshair"></div>
-        <div id="message"></div>
 
         <div class="controls-area">
             <div id="joy-left" class="joystick-base">
@@ -202,23 +112,27 @@
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    
+    // Referências UI
     const scoreDisplay = document.getElementById('score-display');
     const timerDisplay = document.getElementById('timer-display');
+    const levelDisplay = document.getElementById('level-display');
     const crosshair = document.getElementById('crosshair');
-    const messageDiv = document.getElementById('message');
-    const startScreen = document.getElementById('start-screen');
-    const startBtn = document.getElementById('start-btn');
-    
-    // Controles
+    const overlayScreen = document.getElementById('overlay-screen');
+    const titleText = document.getElementById('title-text');
+    const levelInfo = document.getElementById('level-info');
+    const actionBtn = document.getElementById('action-btn');
+    const alertMsg = document.getElementById('alert-msg');
     const joyLeftBase = document.getElementById('joy-left');
     const stickLeft = document.getElementById('stick-left');
     const fireBtn = document.getElementById('fire-btn');
 
     const SCREEN_WIDTH = 320;
     const SCREEN_HEIGHT = 240;
-    
-    // --- SPRITE BATMAN ---
     const spriteSize = 64;
+    
+    // --- SPRITES ---
+    // 1. BATMAN
     const batmanCanvas = document.createElement('canvas');
     batmanCanvas.width = spriteSize; batmanCanvas.height = spriteSize;
     const bCtx = batmanCanvas.getContext('2d');
@@ -231,160 +145,211 @@
     bCtx.fillStyle = '#fff'; bCtx.fillRect(26, 16, 4, 2); bCtx.fillRect(34, 16, 4, 2);
     bCtx.fillStyle = '#F1C27D'; bCtx.fillRect(28, 22, 8, 4);
 
-    // --- SPRITE SWITCH ---
+    // 2. SWITCH
     const switchCanvas = document.createElement('canvas');
     switchCanvas.width = 64; switchCanvas.height = 64;
     const sCtx = switchCanvas.getContext('2d');
     sCtx.fillStyle = '#888'; sCtx.fillRect(10, 10, 44, 44);
     sCtx.fillStyle = '#555'; sCtx.fillRect(14, 14, 36, 36); 
     sCtx.fillStyle = '#aa0000'; sCtx.beginPath(); sCtx.arc(32, 32, 10, 0, Math.PI*2); sCtx.fill();
-    sCtx.fillStyle = '#ffaaaa'; sCtx.font = "10px Arial"; sCtx.fillText("EXIT", 22, 58);
+    sCtx.fillStyle = '#fff'; sCtx.font = "bold 10px Arial"; sCtx.fillText("EXIT", 22, 58);
 
-    const PALETTE = {
-        floor: '#1a1a1a', skyTop: '#050505', skyBottom: '#202020',
-        wallGray: '#555', wallGrayDark: '#333',
-        obstacle: '#2F4F4F', obstacleDark: '#1c2e2e',
-        finish: '#444' 
-    };
+    // 3. ATIRADEIRA DE MADEIRA 2D
+    const slingSpriteSize = 64;
+    const slingCanvas = document.createElement('canvas');
+    slingCanvas.width = slingSpriteSize; slingCanvas.height = slingSpriteSize;
+    const slCtx = slingCanvas.getContext('2d');
+    const woodDark = '#3e2723'; const woodMedium = '#5d4037';
+    slCtx.fillStyle = woodMedium; slCtx.beginPath();
+    slCtx.moveTo(28, 64); slCtx.lineTo(36, 64); slCtx.lineTo(36, 40); // Base
+    slCtx.lineTo(58, 10); slCtx.lineTo(50, 10); slCtx.lineTo(32, 35); // Braço Dir
+    slCtx.lineTo(14, 10); slCtx.lineTo(6, 10); slCtx.lineTo(28, 40); // Braço Esq
+    slCtx.closePath(); slCtx.fill();
+    slCtx.strokeStyle = woodDark; slCtx.lineWidth = 2; slCtx.stroke(); // Contorno
+    slCtx.fillStyle = woodDark; slCtx.fillRect(6, 10, 8, 5); slCtx.fillRect(50, 10, 8, 5); // Amarras
 
-    let kills = 0; const totalTargets = 25;
-    
-    // --- SENSIBILIDADE REDUZIDA ---
-    let moveSpeed = 0.10; // Antes era 0.15
-    let rotSpeed = 0.035; // Antes era 0.06 (Redução drástica para precisão)
-    
-    let gameOver = false;
-    let gameStarted = false;
-    
-    // Tempo
-    const TOTAL_TIME = 180; 
-    let timeLeft = TOTAL_TIME;
+    const PALETTE = { floor: '#1a1a1a', skyTop: '#050505', skyBottom: '#202020', wallGray: '#555', wallGrayDark: '#333', finish: '#444' };
+
+    let posX = 2, posY = 2; 
+    let dirX = 0, dirY = -1; 
+    let planeX = -0.66, planeY = 0;
+
+    let currentLevel = 1;
+    let kills = 0; 
+    let totalTargets = 0;
+    let moveSpeed = 0.10; 
+    let rotSpeed = 0.030; 
+    let isPlaying = false;
+    let timeLeft = 0;
     let lastTime = Date.now();
 
-    const mapSize = 50; const worldMap = [];
+    const mapSize = 50; 
+    let worldMap = []; 
     let sprites = []; 
     let zBuffer = new Array(SCREEN_WIDTH).fill(0);
 
-    let audioCtx = null;
-    let isMusicPlaying = false;
-    function initAudio() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        if (!isMusicPlaying) { isMusicPlaying = true; playBatTheme(); }
-    }
-    function playBatTheme() {
-        if (!audioCtx || gameOver) return;
-        let timeProgress = 1 - (timeLeft / TOTAL_TIME);
-        let speedFactor = 135 + (Math.pow(timeProgress, 1.5) * 145);
-        const tempo = Math.min(300, speedFactor);
-        const noteDuration = 60 / tempo / 2;
-        const notes = [246.94, 246.94, 246.94, 246.94, 246.94, 246.94, 246.94, 246.94, 233.08, 233.08, 233.08, 233.08, 233.08, 233.08, 233.08, 233.08, 220.00, 220.00, 220.00, 220.00, 220.00, 220.00, 220.00, 220.00, 207.65, 207.65, 207.65, 207.65, 207.65, 207.65, 207.65, 207.65];
-        let time = audioCtx.currentTime;
-        notes.forEach((freq, i) => {
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0.08, time + i * noteDuration); gain.gain.exponentialRampToValueAtTime(0.01, time + i * noteDuration + (noteDuration * 0.8));
-            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(time + i * noteDuration); osc.stop(time + i * noteDuration + noteDuration);
-        });
-        setTimeout(playBatTheme, (notes.length * noteDuration * 1000)); 
-    }
+    let isShooting = false;
+    let shootFrame = 0;
+    let rockFlying = false;
+    let rockSize = 0;
+    let rockY = 0;
 
-    function startGame() {
-        startScreen.style.display = 'none';
-        gameStarted = true;
-        lastTime = Date.now();
-        initAudio();
-    }
+    // --- GERADOR DE NÍVEL ---
+    function generateLevel(level) {
+        let difficulty = Math.min(level, 10);
+        totalTargets = Math.floor(15 - (difficulty * 0.7)); 
+        totalTargets = Math.max(5, totalTargets);
+        let baseTime = 60; 
+        timeLeft = baseTime + (totalTargets * 10); 
 
-    startBtn.addEventListener('click', startGame);
-    startBtn.addEventListener('touchstart', startGame);
+        worldMap = [];
+        for(let x=0; x<mapSize; x++) { worldMap[x] = []; for(let y=0; y<mapSize; y++) { worldMap[x][y] = 1; } }
 
-    // --- MAPA ---
-    function generateHunterCity() {
-        for(let x=0; x<mapSize; x++) { worldMap[x] = []; for(let y=0; y<mapSize; y++) { worldMap[x][y] = (x+y)%3 + 1; } }
-        function carve(x1, y1, x2, y2) { let startX = Math.min(x1, x2); let endX = Math.max(x1, x2); let startY = Math.min(y1, y2); let endY = Math.max(y1, y2); for(let x = startX-1; x <= endX+1; x++) { for(let y = startY-1; y <= endY+1; y++) { if(x>0 && x<mapSize-1 && y>0 && y<mapSize-1) worldMap[x][y] = 0; }}}
-        carve(24, 48, 24, 20); carve(10, 20, 40, 20); carve(40, 20, 40, 40); carve(40, 40, 30, 40); carve(30, 40, 30, 48); carve(10, 20, 10, 5); carve(10, 12, 18, 12); carve(10, 5, 2, 5); carve(2, 5, 2, 15);
-        worldMap[22][40] = 0; worldMap[26][30] = 0; worldMap[24][18] = 4; worldMap[35][20] = 4; worldMap[16][13] = 4;
+        let digX = Math.floor(mapSize/2); let digY = Math.floor(mapSize/2);
+        let steps = 200 + (level * 30); 
+        let straightnessMin = Math.max(2, 10 - difficulty);
+        let straightnessMax = Math.max(4, 15 - difficulty);
+
+        worldMap[digX][digY] = 0; 
+        posX = digX + 0.5; posY = digY + 0.5; 
+
+        const dirs = [{x:0, y:-1}, {x:0, y:1}, {x:1, y:0}, {x:-1, y:0}]; 
         
-        worldMap[1][15] = 1; worldMap[2][15] = 1; worldMap[3][15] = 1;
-
-        sprites = [
-            {x:22.5, y:40.5, type:0, active:true}, {x:26.5, y:30.5, type:0, active:true}, {x:24.5, y:17.5, type:0, active:true}, {x:36.5, y:20.5, type:0, active:true}, {x:18.5, y:12.5, type:0, active:true}, {x:41.5, y:41.5, type:0, active:true}, {x:29.5, y:41.5, type:0, active:true}, {x:23.5, y:45.5, type:0, active:true}, {x:25.5, y:45.5, type:0, active:true}, {x:9.5, y:21.5, type:0, active:true}, {x:11.5, y:19.5, type:0, active:true}, {x:41.5, y:25.5, type:0, active:true}, {x:39.5, y:35.5, type:0, active:true}, {x:10.5, y:4.5, type:0, active:true}, {x:2.5, y:4.5, type:0, active:true}, {x:4.5, y:14.5, type:0, active:true}, {x:1.5, y:10.5, type:0, active:true}, {x:15.5, y:11.5, type:0, active:true}, {x:15.5, y:13.5, type:0, active:true}, {x:31.5, y:47.5, type:0, active:true}, {x:24.5, y:25.5, type:0, active:true}, {x:20.5, y:20.5, type:0, active:true}, {x:30.5, y:20.5, type:0, active:true}, {x:45.5, y:20.5, type:0, active:true},
-            {x:2.5, y:14.5, type:1, active:true} 
-        ];
-        posX = 24.5; posY = 47.5; dirX = 0; dirY = -1; planeX = -0.66; planeY = 0;
-    }
-    generateHunterCity();
-
-    let isShooting = false; let shootFrame = 0; let rockFlying = false; let rockSize = 0; let rockY = 0;
-    
-    let inputMove = 0; 
-    let inputTurn = 0; 
-    
-    let joyTouchId = null;
-    let joyStartX = 0, joyStartY = 0;
-
-    joyLeftBase.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        let t = e.changedTouches[0];
-        joyTouchId = t.identifier;
-        let rect = joyLeftBase.getBoundingClientRect();
-        joyStartX = rect.left + rect.width/2;
-        joyStartY = rect.top + rect.height/2;
-        updateJoystick(t.clientX, t.clientY);
-    });
-
-    joyLeftBase.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        for(let i=0; i<e.changedTouches.length; i++) {
-            if(e.changedTouches[i].identifier === joyTouchId) {
-                updateJoystick(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+        for(let i=0; i<steps; i++) {
+            let d = dirs[Math.floor(Math.random() * dirs.length)];
+            let length = Math.floor(Math.random() * (straightnessMax - straightnessMin)) + straightnessMin;
+            for(let j=0; j<length; j++) {
+                digX += d.x; digY += d.y;
+                if(digX < 2) digX = 2; if(digX > mapSize-3) digX = mapSize-3;
+                if(digY < 2) digY = 2; if(digY > mapSize-3) digY = mapSize-3;
+                worldMap[digX][digY] = 0;
+                if(Math.random() < (0.9 - (difficulty * 0.08))) { 
+                    if (digX+1 < mapSize-1) worldMap[digX+1][digY] = 0;
+                    if (digY+1 < mapSize-1) worldMap[digX][digY+1] = 0;
+                    if (digX-1 > 1) worldMap[digX-1][digY] = 0;
+                }
             }
         }
-    });
 
-    joyLeftBase.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        resetJoystick();
-    });
-
-    function updateJoystick(clientX, clientY) {
-        let dx = clientX - joyStartX;
-        let dy = clientY - joyStartY;
-        let dist = Math.sqrt(dx*dx + dy*dy);
-        let maxDist = 50;
-        if(dist > maxDist) {
-            dx = (dx / dist) * maxDist;
-            dy = (dy / dist) * maxDist;
+        sprites = [];
+        let targetsPlaced = 0;
+        let safetyCounter = 0;
+        while(targetsPlaced < totalTargets && safetyCounter < 3000) {
+            let rx = Math.floor(Math.random() * mapSize);
+            let ry = Math.floor(Math.random() * mapSize);
+            if(worldMap[rx][ry] === 0) {
+                let minSpawnDist = 5 + (level * 2);
+                let distToPlayer = Math.hypot(rx - posX, ry - posY);
+                if(distToPlayer > minSpawnDist) {
+                    sprites.push({ x: rx + 0.5, y: ry + 0.5, type: 0, active: true });
+                    targetsPlaced++;
+                }
+            }
+            safetyCounter++;
         }
+
+        let bestExitX = posX, bestExitY = posY;
+        let maxDist = 0;
+        for(let x=1; x<mapSize-1; x++) {
+            for(let y=1; y<mapSize-1; y++) {
+                if(worldMap[x][y] === 0) {
+                    if(worldMap[x+1][y]===1 || worldMap[x-1][y]===1 || worldMap[x][y+1]===1 || worldMap[x][y-1]===1) {
+                        let d = Math.hypot(x - posX, y - posY);
+                        if(d > maxDist) { maxDist = d; bestExitX = x; bestExitY = y; }
+                    }
+                }
+            }
+        }
+        sprites.push({ x: bestExitX + 0.5, y: bestExitY + 0.5, type: 1, active: true });
+
+        kills = 0; dirX = 0; dirY = -1; planeX = -0.66; planeY = 0;
+        scoreDisplay.innerText = `ALVOS: 0/${totalTargets}`;
+        levelDisplay.innerText = `NÍVEL ${level}`;
+    }
+
+    // --- ÁUDIO ---
+    let audioCtx = null; let isMusicPlaying = false;
+    function unlockAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function playBatTheme() {
+        if (!audioCtx || !isPlaying) return;
+        let timeRatio = 1 - (Math.max(0, timeLeft) / (timeLeft + 30));
+        if (timeLeft < 30) timeRatio = 0.8; 
+        const tempo = 100 + (timeRatio * 100);
+        const noteDuration = 60 / tempo / 2;
+        const notes = [246.94, 246.94, 246.94, 246.94, 233.08, 233.08, 233.08, 233.08, 220.00, 220.00, 220.00, 220.00, 207.65, 207.65, 207.65, 207.65];
+        let time = audioCtx.currentTime;
+        notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
+            osc.type = 'sawtooth'; osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.05, time + i * noteDuration); 
+            gain.gain.exponentialRampToValueAtTime(0.01, time + i * noteDuration + (noteDuration * 0.8));
+            osc.connect(gain); gain.connect(audioCtx.destination); 
+            osc.start(time + i * noteDuration); osc.stop(time + i * noteDuration + noteDuration);
+        });
+        if(isPlaying) setTimeout(playBatTheme, (notes.length * noteDuration * 1000)); 
+    }
+
+    // --- FLUXO ---
+    actionBtn.addEventListener('click', startLevelAction);
+    actionBtn.addEventListener('touchend', (e) => { e.preventDefault(); startLevelAction(); });
+
+    function startLevelAction() {
+        unlockAudio();
+        if(currentLevel === 1 || !isPlaying) {
+            isMusicPlaying = true;
+            setTimeout(playBatTheme, 500);
+        }
+        generateLevel(currentLevel);
+        overlayScreen.style.display = 'none';
+        lastTime = Date.now();
+        isPlaying = true; 
+        requestAnimationFrame(gameLoop);
+    }
+
+    function levelComplete() {
+        isPlaying = false; currentLevel++;
+        let nextTargets = Math.floor(15 - (Math.min(currentLevel, 10) * 0.7));
+        nextTargets = Math.max(5, nextTargets);
+        titleText.innerHTML = `<span style="color:#00FF00">NÍVEL ${currentLevel-1} CONCLUÍDO!</span>`;
+        levelInfo.innerHTML = `<p>Excelente trabalho.</p><p>Próximo Nível: ${nextTargets} Alvos</p>`;
+        actionBtn.innerText = "PRÓXIMA FASE";
+        overlayScreen.style.display = 'flex';
+    }
+
+    function gameOverFunc() {
+        isPlaying = false;
+        titleText.innerHTML = `<span style="color:#FF0000">GAME OVER</span>`;
+        levelInfo.innerHTML = `<p>O tempo acabou.</p><p>Você chegou ao Nível ${currentLevel}</p>`;
+        actionBtn.innerText = "TENTAR NOVAMENTE";
+        currentLevel = 1; overlayScreen.style.display = 'flex';
+    }
+
+    // --- CONTROLES ---
+    let inputMove = 0; let inputTurn = 0; 
+    let joyTouchId = null; let joyStartX = 0, joyStartY = 0;
+    joyLeftBase.addEventListener('touchstart', (e) => { e.preventDefault(); let t = e.changedTouches[0]; joyTouchId = t.identifier; let rect = joyLeftBase.getBoundingClientRect(); joyStartX = rect.left + rect.width/2; joyStartY = rect.top + rect.height/2; updateJoystick(t.clientX, t.clientY); });
+    joyLeftBase.addEventListener('touchmove', (e) => { e.preventDefault(); for(let i=0; i<e.changedTouches.length; i++) { if(e.changedTouches[i].identifier === joyTouchId) updateJoystick(e.changedTouches[i].clientX, e.changedTouches[i].clientY); } });
+    joyLeftBase.addEventListener('touchend', (e) => { e.preventDefault(); resetJoystick(); });
+    function updateJoystick(clientX, clientY) {
+        let dx = clientX - joyStartX; let dy = clientY - joyStartY;
+        let dist = Math.sqrt(dx*dx + dy*dy); let maxDist = 50;
+        if(dist > maxDist) { dx = (dx / dist) * maxDist; dy = (dy / dist) * maxDist; }
         stickLeft.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-        
-        inputMove = -dy / maxDist; 
-        inputTurn = dx / maxDist;  
+        inputMove = -dy / maxDist; inputTurn = dx / maxDist;  
     }
-
-    function resetJoystick() {
-        joyTouchId = null;
-        stickLeft.style.transform = `translate(-50%, -50%)`;
-        inputMove = 0;
-        inputTurn = 0;
-    }
-
-    fireBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        fireBtn.style.backgroundColor = "rgba(255,0,0,0.9)";
-        playerShoot();
-    });
-    fireBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        fireBtn.style.backgroundColor = "rgba(200,0,0,0.6)";
-    });
-
+    function resetJoystick() { joyTouchId = null; stickLeft.style.transform = `translate(-50%, -50%)`; inputMove = 0; inputTurn = 0; }
+    fireBtn.addEventListener('touchstart', (e) => { e.preventDefault(); fireBtn.style.backgroundColor = "rgba(255,0,0,0.9)"; playerShoot(); });
+    fireBtn.addEventListener('touchend', (e) => { e.preventDefault(); fireBtn.style.backgroundColor = "rgba(200,0,0,0.6)"; });
     const keys = { w:false, s:false, a:false, d:false };
     document.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; if(e.code==="Space") playerShoot(); });
     document.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = false; });
 
+    // --- TIRO ---
     function playerShoot() { 
-        if (isShooting || gameOver || !gameStarted) return; 
+        if (!isPlaying || isShooting) return; 
         isShooting = true; shootFrame = 10; rockFlying = true; rockSize = 6; rockY = SCREEN_HEIGHT - 60;
         sprites.sort((a, b) => { return ((posX - a.x)*(posX - a.x) + (posY - a.y)*(posY - a.y)) - ((posX - b.x)*(posX - b.x) + (posY - b.y)*(posY - b.y)); });
         for(let i=0; i<sprites.length; i++) {
@@ -396,19 +361,18 @@
             if (transformY > 0) {
                 let spriteScreenX = Math.floor((SCREEN_WIDTH / 2) * (1 + transformX / transformY));
                 let spriteWidth = Math.abs(Math.floor(SCREEN_HEIGHT / transformY));
-                let leftEdge = spriteScreenX - spriteWidth / 2;
-                let crosshairX = SCREEN_WIDTH / 2;
-                let offset = crosshairX - leftEdge;
+                let offset = (SCREEN_WIDTH / 2) - (spriteScreenX - spriteWidth / 2);
                 let texX = Math.floor(offset * spriteSize / spriteWidth);
                 if (texX > 10 && texX < 54) {
-                    if (transformY < zBuffer[Math.floor(crosshairX)] + 0.5 && transformY < 15) {
+                    if (transformY < zBuffer[Math.floor(SCREEN_WIDTH/2)] + 0.5 && transformY < 15) {
                         if (s.type === 0) { 
                             setTimeout(() => { 
-                                s.active = false; kills++; scoreDisplay.innerText = `ALVOS: ${kills}/${totalTargets}`; 
-                                flashCrosshair();
+                                if(s.active) { s.active = false; kills++; scoreDisplay.innerText = `ALVOS: ${kills}/${totalTargets}`; flashCrosshair(); }
                             }, 100); 
                         } else if (s.type === 1) { 
-                             setTimeout(() => { checkWinCondition(); }, 100); 
+                             let needed = Math.ceil(totalTargets * 0.8);
+                             if (kills >= needed) { setTimeout(() => { levelComplete(); }, 100); } 
+                             else { alertMsg.style.display = 'block'; alertMsg.innerText = `FALTAM ALVOS! (${kills}/${needed})`; setTimeout(() => { alertMsg.style.display = 'none'; }, 2000); }
                         }
                         break; 
                     }
@@ -416,60 +380,40 @@
             }
         }
     }
+    function flashCrosshair() { crosshair.style.backgroundColor = '#FFD700'; crosshair.style.transform = 'translate(-50%, -50%) scale(2.5)'; setTimeout(() => { crosshair.style.backgroundColor = '#FF0000'; crosshair.style.transform = 'translate(-50%, -50%) scale(1)'; }, 150); }
+    function formatTime(seconds) { let m = Math.floor(seconds / 60); let s = Math.floor(seconds % 60); return `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`; }
     
-    function flashCrosshair() {
-        crosshair.style.backgroundColor = '#FFD700'; crosshair.style.transform = 'translate(-50%, -50%) scale(2.5)'; 
-        setTimeout(() => { crosshair.style.backgroundColor = '#FF0000'; crosshair.style.transform = 'translate(-50%, -50%) scale(1)'; }, 150);
-    }
-
-    function checkWinCondition() { 
-        gameOver = true; 
-        messageDiv.innerHTML = `<h1 style="color:#00FF00">FIM DA FASE!</h1><p>Tempo: ${formatTime(TOTAL_TIME - timeLeft)}</p><p>Impostores: ${kills}/${totalTargets}</p>`; 
-        messageDiv.style.display = 'block'; 
-    }
-    
-    function checkLossCondition() {
-        gameOver = true;
-        messageDiv.innerHTML = `<h1 style="color:#FF0000">GAME OVER</h1><p>Tempo Esgotado.</p>`;
-        messageDiv.style.display = 'block';
-    }
-
-    function formatTime(seconds) {
-        let m = Math.floor(seconds / 60); let s = Math.floor(seconds % 60);
-        return `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-    }
-    
+    // --- LOOP ---
     function gameLoop() { 
-        if (!gameOver && gameStarted) { 
+        if (isPlaying) { 
             let now = Date.now(); let dt = (now - lastTime) / 1000; lastTime = now;
             timeLeft -= dt;
             timerDisplay.innerText = formatTime(Math.max(0, timeLeft));
             if (timeLeft < 30) { timerDisplay.style.color = '#FF0000'; timerDisplay.style.borderColor = '#FF0000'; }
             else if (timeLeft < 60) { timerDisplay.style.color = '#FFFF00'; timerDisplay.style.borderColor = '#FFFF00'; }
-            if (timeLeft <= 0) { timeLeft = 0; checkLossCondition(); }
-
+            if (timeLeft <= 0) { timeLeft = 0; gameOverFunc(); }
             let kbTurn = 0; if (keys.d) kbTurn = 1; if (keys.a) kbTurn = -1;
             let kbMove = 0; if (keys.w) kbMove = 1; if (keys.s) kbMove = -1;
             let turnVal = inputTurn + kbTurn;
             let moveVal = inputMove + kbMove;
-
             if (Math.abs(turnVal) > 0.1) {
                 let rot = -turnVal * rotSpeed; 
                 let oldDirX = dirX; dirX = dirX * Math.cos(rot) - dirY * Math.sin(rot); dirY = oldDirX * Math.sin(rot) + dirY * Math.cos(rot); 
                 let oldPlaneX = planeX; planeX = planeX * Math.cos(rot) - planeY * Math.sin(rot); planeY = oldPlaneX * Math.sin(rot) + planeY * Math.cos(rot); 
             }
-
             if (Math.abs(moveVal) > 0.1) {
                 let speed = moveVal * moveSpeed; 
                 if(worldMap[Math.floor(posX + dirX * speed)][Math.floor(posY)] <= 0) posX += dirX * speed; 
                 if(worldMap[Math.floor(posX)][Math.floor(posY + dirY * speed)] <= 0) posY += dirY * speed; 
             }
-        } else if (!gameStarted) { lastTime = Date.now(); }
-        
-        if (shootFrame > 0) shootFrame--; else isShooting = false; draw(); requestAnimationFrame(gameLoop); 
+        } 
+        if (shootFrame > 0) shootFrame--; else isShooting = false; 
+        draw(); requestAnimationFrame(gameLoop); 
     }
 
+    // --- RENDER ---
     function draw() {
+        if(worldMap.length === 0) return;
         let gradientSky = ctx.createLinearGradient(0, 0, 0, SCREEN_HEIGHT/2); gradientSky.addColorStop(0, PALETTE.skyTop); gradientSky.addColorStop(1, PALETTE.skyBottom);
         ctx.fillStyle = gradientSky; ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
         ctx.fillStyle = PALETTE.floor; ctx.fillRect(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
@@ -478,21 +422,22 @@
             let cameraX = 2 * x / SCREEN_WIDTH - 1; let rayDirX = dirX + planeX * cameraX; let rayDirY = dirY + planeY * cameraX;
             let mapX = Math.floor(posX), mapY = Math.floor(posY);
             let sideDistX, sideDistY, deltaDistX = Math.abs(1 / rayDirX), deltaDistY = Math.abs(1 / rayDirY);
-            let stepX, stepY, hit = 0, side, hitType = 0;
+            let stepX, stepY, hit = 0, side;
             if (rayDirX < 0) { stepX = -1; sideDistX = (posX - mapX) * deltaDistX; } else { stepX = 1; sideDistX = (mapX + 1.0 - posX) * deltaDistX; }
             if (rayDirY < 0) { stepY = -1; sideDistY = (posY - mapY) * deltaDistY; } else { stepY = 1; sideDistY = (mapY + 1.0 - posY) * deltaDistY; }
             while (hit === 0) {
                 if (sideDistX < sideDistY) { sideDistX += deltaDistX; mapX += stepX; side = 0; } else { sideDistY += deltaDistY; mapY += stepY; side = 1; }
-                if (worldMap[mapX][mapY] > 0) { hit = 1; hitType = worldMap[mapX][mapY]; }
+                if (worldMap[mapX][mapY] > 0) { hit = 1; }
             }
             let perpWallDist = side === 0 ? (mapX - posX + (1 - stepX) / 2) / rayDirX : (mapY - posY + (1 - stepY) / 2) / rayDirY;
-            zBuffer[x] = perpWallDist;
+            zBuffer[x] = perpWallDist; 
             let lineHeight = Math.floor(SCREEN_HEIGHT / perpWallDist);
             let drawStart = -lineHeight / 2 + SCREEN_HEIGHT / 2; if (drawStart < 0) drawStart = 0;
             let drawEnd = lineHeight / 2 + SCREEN_HEIGHT / 2; if (drawEnd >= SCREEN_HEIGHT) drawEnd = SCREEN_HEIGHT - 1;
-            let color; if (hitType >= 1 && hitType <= 3) color = side === 1 ? PALETTE.wallGrayDark : PALETTE.wallGray; else if (hitType === 4) color = side === 1 ? PALETTE.obstacleDark : PALETTE.obstacle; else if (hitType === 8) color = PALETTE.finish; else color = '#000';
+            let color = side === 1 ? PALETTE.wallGrayDark : PALETTE.wallGray;
             ctx.fillStyle = color; ctx.globalAlpha = Math.max(0.1, 1 - perpWallDist / 30); ctx.fillRect(x, drawStart, 1, drawEnd - drawStart); ctx.globalAlpha = 1.0;
         }
+        
         let spriteOrder = [];
         for(let i=0; i<sprites.length; i++) {
             if(!sprites[i].active) continue;
@@ -525,17 +470,50 @@
         drawSlingshot();
     }
 
+    // --- FUNÇÃO DESENHAR ATIRADEIRA REVISADA ---
     function drawSlingshot() {
+        if(!isPlaying && !gameOver) return;
         let centerX = SCREEN_WIDTH / 2; let baseY = SCREEN_HEIGHT;
         let swayX = 0; let swayY = 0;
-        if (!gameOver && (inputMove !== 0 || inputTurn !== 0)) { swayX = Math.sin(Date.now() / 150) * 5; swayY = Math.abs(Math.cos(Date.now() / 150)) * 3; }
-        let handX = centerX + swayX; let handY = baseY - swayY;
-        ctx.fillStyle = '#4a3b2b'; ctx.fillRect(handX - 5, handY - 60, 10, 60); 
-        ctx.beginPath(); ctx.lineWidth = 6; ctx.strokeStyle = '#4a3b2b'; ctx.moveTo(handX, handY - 60); ctx.lineTo(handX - 25, handY - 100); ctx.moveTo(handX, handY - 60); ctx.lineTo(handX + 25, handY - 100); ctx.stroke();
-        let elasticCenterY = isShooting ? handY - 100 : handY - 65;
-        ctx.beginPath(); ctx.lineWidth = 3; ctx.strokeStyle = '#777'; ctx.moveTo(handX - 25, handY - 100); ctx.lineTo(handX, elasticCenterY); ctx.lineTo(handX + 25, handY - 100); ctx.stroke();
-        if (!isShooting && !rockFlying) { ctx.fillStyle = '#aaa'; ctx.beginPath(); ctx.arc(handX, elasticCenterY, 6, 0, Math.PI*2); ctx.fill(); }
-        if (rockFlying) { rockSize -= 0.3; rockY -= 5; ctx.fillStyle = '#ccc'; ctx.beginPath(); ctx.arc(centerX, rockY, Math.max(1, rockSize), 0, Math.PI*2); ctx.fill(); if (rockSize <= 0) rockFlying = false; }
+
+        // BALANÇO DA ARMA (RESTAURADO E AUMENTADO)
+        if (isPlaying && (inputMove !== 0 || inputTurn !== 0)) {
+            swayX = Math.sin(Date.now() / 150) * 12; 
+            swayY = Math.abs(Math.cos(Date.now() / 150)) * 8;
+        }
+
+        // TAMANHO E POSIÇÃO AJUSTADOS
+        const drawnSize = 110; // Menor que antes (era 160)
+        const baseOffset = 60; // Empurra bem para baixo na tela
+        let handX = centerX + swayX;
+        let handY = baseY + baseOffset - swayY;
+
+        // 1. DESENHAR O SPRITE DE MADEIRA
+        ctx.drawImage(slingCanvas, handX - drawnSize/2, handY - drawnSize, drawnSize, drawnSize);
+
+        // 2. DESENHAR O ELÁSTICO E PEDRA (Recalculado para o novo tamanho)
+        let tipLeftX = handX - (drawnSize * 0.35); 
+        let tipRightX = handX + (drawnSize * 0.35); 
+        let tipsY = handY - (drawnSize * 0.82); 
+
+        let elasticCenterY = tipsY + (drawnSize * 0.15);
+        if (isShooting) elasticCenterY = tipsY - (drawnSize * 0.05);
+
+        ctx.beginPath(); ctx.lineWidth = 3; ctx.strokeStyle = '#555'; ctx.lineCap = 'round';
+        ctx.moveTo(tipLeftX, tipsY); ctx.lineTo(handX, elasticCenterY); ctx.lineTo(tipRightX, tipsY); ctx.stroke();
+
+        if (!isShooting && !rockFlying) {
+            let rSize = drawnSize * 0.05;
+            ctx.fillStyle = '#999'; ctx.beginPath(); ctx.arc(handX, elasticCenterY, rSize, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#ccc'; ctx.beginPath(); ctx.arc(handX-1, elasticCenterY-1, rSize/2, 0, Math.PI*2); ctx.fill();
+        }
+
+        if (rockFlying) {
+            if(rockSize === 6) rockY = tipsY;
+            rockSize -= 0.3; rockY -= 6; 
+            ctx.fillStyle = '#999'; ctx.beginPath(); ctx.arc(centerX, rockY, Math.max(1, rockSize), 0, Math.PI*2); ctx.fill();
+            if (rockSize <= 0) rockFlying = false;
+        }
     }
 
     gameLoop();
