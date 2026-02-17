@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bat-Hunt: Final Polish</title>
+    <title>Bat-Hunt</title>
     <style>
         /* CONFIGURAÇÃO VISUAL (CSS) */
         body {
@@ -291,6 +291,58 @@
         });
         if(isPlaying) setTimeout(playBatTheme, (notes.length * noteDuration * 1000)); 
     }
+// 1. O Grunhido (Impacto)
+    function playHitSound() {
+        if (!audioCtx) return;
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        // 'triangle' tem um som mais "sujo" que o 'sine', bom para impacto 8-bit
+        osc.type = 'triangle'; 
+        
+        // O som começa em 200Hz e cai para 50Hz em 0.15 segundos (efeito de queda)
+        osc.frequency.setValueAtTime(200, t);
+        osc.frequency.linearRampToValueAtTime(50, t + 0.15); 
+        
+        // O volume começa alto e zera rápido
+        gain.gain.setValueAtTime(0.3, t);
+        gain.gain.linearRampToValueAtTime(0, t + 0.15);
+        
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(t); osc.stop(t + 0.15);
+    }
+// 2. O Ding (Vitória/Passar de Fase)
+    function playWinSound() {
+        if (!audioCtx) return;
+        const t = audioCtx.currentTime;
+        
+        // Sequência de notas (C Maior): C5, E5, G5, C6 (Oitava acima)
+        const notes = [523.25, 659.25, 783.99, 1046.50]; 
+        
+        notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            // 'square' (onda quadrada) tem aquele som "crocante" de Nintendinho
+            osc.type = 'square'; 
+            osc.frequency.value = freq;
+            
+            // Toca cada nota 0.1s depois da anterior (efeito escadinha)
+            const startTime = t + (i * 0.1);
+            const duration = 0.4; // A última nota ecoa um pouco mais
+            
+            // Envelope de volume: Começa forte e desaparece
+            gain.gain.setValueAtTime(0.15, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        });
+    }
 
     // --- FLUXO ---
     actionBtn.addEventListener('click', startLevelAction);
@@ -310,7 +362,7 @@
     }
 
     function levelComplete() {
-        isPlaying = false; currentLevel++;
+        playWinSound(); isPlaying = false; currentLevel++; 
         let nextTargets = Math.floor(15 - (Math.min(currentLevel, 10) * 0.7));
         nextTargets = Math.max(5, nextTargets);
         titleText.innerHTML = `<span style="color:#00FF00">NÍVEL ${currentLevel-1} CONCLUÍDO!</span>`;
@@ -367,7 +419,7 @@
                     if (transformY < zBuffer[Math.floor(SCREEN_WIDTH/2)] + 0.5 && transformY < 15) {
                         if (s.type === 0) { 
                             setTimeout(() => { 
-                                if(s.active) { s.active = false; kills++; scoreDisplay.innerText = `ALVOS: ${kills}/${totalTargets}`; flashCrosshair(); }
+                                if(s.active) { s.active = false; kills++; scoreDisplay.innerText = `ALVOS: ${kills}/${totalTargets}`; flashCrosshair(); playHitSound(); }
                             }, 100); 
                         } else if (s.type === 1) { 
                              let needed = Math.ceil(totalTargets * 0.8);
