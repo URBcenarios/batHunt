@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bat-Hunt: Doom Switch</title>
+    <title>Bat-Hunt: Precision Control</title>
     <style>
         body {
             margin: 0;
@@ -58,7 +58,7 @@
 
         .crosshair {
             position: absolute;
-            top: 50%;
+            top: 60%; 
             left: 50%;
             width: 4px;
             height: 4px;
@@ -69,7 +69,7 @@
             box-shadow: 0 0 4px #FFD700;
         }
 
-        /* --- CONTROLES SIMPLIFICADOS --- */
+        /* --- CONTROLES --- */
         .controls-area {
             position: absolute;
             bottom: 30px;
@@ -82,7 +82,6 @@
             pointer-events: none;
         }
 
-        /* Joystick Esquerdo (Movimento + Giro) */
         .joystick-base {
             width: 140px;
             height: 140px;
@@ -108,7 +107,6 @@
             box-shadow: 0 0 10px #000;
         }
 
-        /* Botão de Tiro (Direita) */
         #fire-btn {
             width: 100px;
             height: 100px;
@@ -132,7 +130,6 @@
             transform: scale(0.95);
         }
 
-        /* Mensagens */
         #start-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -180,7 +177,7 @@
     <div id="start-screen">
         <h1 style="color:#FFD700; margin-bottom:10px; text-shadow: 2px 2px #000; font-size: 40px; text-align: center;">BAT-HUNT<br><span style="color:#fff; font-size: 20px;">DOOM EDITION</span></h1>
         <div id="start-btn">JOGAR</div>
-        <p style="color:#aaa; margin-top:20px;">Esquerda: Mover/Girar | Direita: Atirar</p>
+        <p style="color:#aaa; margin-top:20px;">Use Fones de Ouvido 🎧</p>
     </div>
 
     <div id="ui-layer">
@@ -196,7 +193,6 @@
             <div id="joy-left" class="joystick-base">
                 <div id="stick-left" class="joystick-stick"></div>
             </div>
-            
             <div id="fire-btn">TIRO</div>
         </div>
     </div>
@@ -235,7 +231,7 @@
     bCtx.fillStyle = '#fff'; bCtx.fillRect(26, 16, 4, 2); bCtx.fillRect(34, 16, 4, 2);
     bCtx.fillStyle = '#F1C27D'; bCtx.fillRect(28, 22, 8, 4);
 
-    // --- SPRITE SWITCH (BOTÃO FINAL) ---
+    // --- SPRITE SWITCH ---
     const switchCanvas = document.createElement('canvas');
     switchCanvas.width = 64; switchCanvas.height = 64;
     const sCtx = switchCanvas.getContext('2d');
@@ -252,7 +248,11 @@
     };
 
     let kills = 0; const totalTargets = 25;
-    let moveSpeed = 0.15; let rotSpeed = 0.06; 
+    
+    // --- SENSIBILIDADE REDUZIDA ---
+    let moveSpeed = 0.10; // Antes era 0.15
+    let rotSpeed = 0.035; // Antes era 0.06 (Redução drástica para precisão)
+    
     let gameOver = false;
     let gameStarted = false;
     
@@ -317,14 +317,12 @@
 
     let isShooting = false; let shootFrame = 0; let rockFlying = false; let rockSize = 0; let rockY = 0;
     
-    // NOVOS INPUTS
     let inputMove = 0; 
     let inputTurn = 0; 
     
     let joyTouchId = null;
     let joyStartX = 0, joyStartY = 0;
 
-    // --- CONTROLE TOUCH ---
     joyLeftBase.addEventListener('touchstart', (e) => {
         e.preventDefault();
         let t = e.changedTouches[0];
@@ -354,17 +352,14 @@
         let dy = clientY - joyStartY;
         let dist = Math.sqrt(dx*dx + dy*dy);
         let maxDist = 50;
-        
         if(dist > maxDist) {
             dx = (dx / dist) * maxDist;
             dy = (dy / dist) * maxDist;
         }
-
         stickLeft.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
         
-        // CORREÇÃO DOS EIXOS
-        inputMove = -dy / maxDist; // Y: Cima (negativo) -> Frente (positivo)
-        inputTurn = dx / maxDist;  // X: Direita (positivo) -> Gira Direita
+        inputMove = -dy / maxDist; 
+        inputTurn = dx / maxDist;  
     }
 
     function resetJoystick() {
@@ -391,17 +386,13 @@
     function playerShoot() { 
         if (isShooting || gameOver || !gameStarted) return; 
         isShooting = true; shootFrame = 10; rockFlying = true; rockSize = 6; rockY = SCREEN_HEIGHT - 60;
-        
         sprites.sort((a, b) => { return ((posX - a.x)*(posX - a.x) + (posY - a.y)*(posY - a.y)) - ((posX - b.x)*(posX - b.x) + (posY - b.y)*(posY - b.y)); });
-
         for(let i=0; i<sprites.length; i++) {
             let s = sprites[i]; if (!s.active) continue;
-
             let spriteX = s.x - posX; let spriteY = s.y - posY;
             let invDet = 1.0 / (planeX * dirY - dirX * planeY);
             let transformX = invDet * (dirY * spriteX - dirX * spriteY);
             let transformY = invDet * (-planeY * spriteX + planeX * spriteY); 
-
             if (transformY > 0) {
                 let spriteScreenX = Math.floor((SCREEN_WIDTH / 2) * (1 + transformX / transformY));
                 let spriteWidth = Math.abs(Math.floor(SCREEN_HEIGHT / transformY));
@@ -409,19 +400,15 @@
                 let crosshairX = SCREEN_WIDTH / 2;
                 let offset = crosshairX - leftEdge;
                 let texX = Math.floor(offset * spriteSize / spriteWidth);
-
                 if (texX > 10 && texX < 54) {
                     if (transformY < zBuffer[Math.floor(crosshairX)] + 0.5 && transformY < 15) {
-                        
                         if (s.type === 0) { 
                             setTimeout(() => { 
                                 s.active = false; kills++; scoreDisplay.innerText = `ALVOS: ${kills}/${totalTargets}`; 
                                 flashCrosshair();
                             }, 100); 
                         } else if (s.type === 1) { 
-                             setTimeout(() => { 
-                                checkWinCondition();
-                            }, 100); 
+                             setTimeout(() => { checkWinCondition(); }, 100); 
                         }
                         break; 
                     }
@@ -461,19 +448,12 @@
             else if (timeLeft < 60) { timerDisplay.style.color = '#FFFF00'; timerDisplay.style.borderColor = '#FFFF00'; }
             if (timeLeft <= 0) { timeLeft = 0; checkLossCondition(); }
 
-            // INPUTS UNIFICADOS (CORRIGIDOS)
-            // Teclado: A = -1 (Esq), D = 1 (Dir)
             let kbTurn = 0; if (keys.d) kbTurn = 1; if (keys.a) kbTurn = -1;
             let kbMove = 0; if (keys.w) kbMove = 1; if (keys.s) kbMove = -1;
-
             let turnVal = inputTurn + kbTurn;
             let moveVal = inputMove + kbMove;
 
-            // ROTAÇÃO (Sinal corrigido para joystick e teclado)
             if (Math.abs(turnVal) > 0.1) {
-                // Inverter o sinal do turnVal para corrigir a direção da rotação
-                // Se turnVal > 0 (Direita), queremos rot > 0. Se turnVal < 0 (Esquerda), rot < 0.
-                // Na matemática original: -rotSpeed girava pra direita. Vamos ajustar:
                 let rot = -turnVal * rotSpeed; 
                 let oldDirX = dirX; dirX = dirX * Math.cos(rot) - dirY * Math.sin(rot); dirY = oldDirX * Math.sin(rot) + dirY * Math.cos(rot); 
                 let oldPlaneX = planeX; planeX = planeX * Math.cos(rot) - planeY * Math.sin(rot); planeY = oldPlaneX * Math.sin(rot) + planeY * Math.cos(rot); 
@@ -513,7 +493,6 @@
             let color; if (hitType >= 1 && hitType <= 3) color = side === 1 ? PALETTE.wallGrayDark : PALETTE.wallGray; else if (hitType === 4) color = side === 1 ? PALETTE.obstacleDark : PALETTE.obstacle; else if (hitType === 8) color = PALETTE.finish; else color = '#000';
             ctx.fillStyle = color; ctx.globalAlpha = Math.max(0.1, 1 - perpWallDist / 30); ctx.fillRect(x, drawStart, 1, drawEnd - drawStart); ctx.globalAlpha = 1.0;
         }
-
         let spriteOrder = [];
         for(let i=0; i<sprites.length; i++) {
             if(!sprites[i].active) continue;
@@ -521,7 +500,6 @@
             spriteOrder.push({ id: i, dist: dist });
         }
         spriteOrder.sort((a,b) => b.dist - a.dist);
-
         for(let i=0; i<spriteOrder.length; i++) {
             let sprite = sprites[spriteOrder[i].id];
             let spriteX = sprite.x - posX; let spriteY = sprite.y - posY;
